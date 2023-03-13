@@ -12,6 +12,16 @@ from sklearn import preprocessing
 from dataprep.eda import plot, plot_correlation, create_report, plot_missing
 
 
+
+'''
+This function is our unique part of the project.
+The function splits the data into the protected variable sub-groups using
+quantiles in order to split the data while ignoring outliers, as quantile would enforce that
+the groups have similar probabilty of a random sample to fall into.
+
+We than proceed to measuring skewness using the skew() function, and for completeness of the check, we also
+utilized common methods - IQR as well as JB_test
+'''
 def bin_splitting(data, column_to_split, target_variable):
     print("---- Bin Splitting started ----")
     data_copy = data.copy()
@@ -51,7 +61,13 @@ def bin_splitting(data, column_to_split, target_variable):
     
 
 
-
+'''
+    This function gets the splitted by quantiles data, and afterwards it fits the major group
+    into the distribution of the minor group.
+    Our approach is to fit the transformer on the minority data and then 
+    apply the transform() function on majority data to ensure that the 
+    majority data fits to the minority data.
+'''
 def fix_distribution(minority_data, majority_data, target_variable, protected_attribute):
             print("---- Distribution Tool in process ----")      
             print("--- Starting to handle skewness ---")
@@ -86,7 +102,10 @@ def fix_distribution(minority_data, majority_data, target_variable, protected_at
 
 np.random.seed(123)
 
-# the function will always return majority before minority
+'''
+ the function will always return majority before minority
+ It is a utility function that is used to split the data in our notebook of reweghting and resampling
+'''
 def get_majority_minority(data, column_to_split, target_variable):
     threshold = 0.5     
     skewness = data[column_to_split].skew()
@@ -125,7 +144,22 @@ def get_majority_minority(data, column_to_split, target_variable):
 
 
 
+'''
+    Simply calculates spearman correlation for our project
+'''
+def spearman(data, protected_attribte, target_attribute):
+    # Compute Spearman's rank correlation coefficient
+    spearman_corr, spearman_p = spearmanr(data[protected_attribte], data[target_attribute])
+    print("Spearman's correlation coefficient:", spearman_corr)
+    print("p-value:", spearman_p)
 
+
+
+
+'''
+    calculates our metric of separation that we proposed at the paper proposal part of
+    the course.
+'''
 def compute_fairness_matrics(data, protected_variable, target_variable):
 
   
@@ -152,17 +186,3 @@ def compute_fairness_matrics(data, protected_variable, target_variable):
 
   return abs(pos_rate_protected - pos_rate_non_protected), acc
  
-
-
-
-
-
-
- 
-
-
-def spearman(data, protected_attribte, target_attribute):
-    # Compute Spearman's rank correlation coefficient
-    spearman_corr, spearman_p = spearmanr(data[protected_attribte], data[target_attribute])
-    print("Spearman's correlation coefficient:", spearman_corr)
-    print("p-value:", spearman_p)
